@@ -166,7 +166,7 @@ def run_jslcrud_test(app):
     assert r.json['schema']['type'] == 'object'
 
     # lets try creating an entry
-    r = c.post_json('/pages/+create', {'title': 'Hello', 'body': 'World'})
+    r = c.post_json('/pages/', {'title': 'Hello', 'body': 'World'})
 
     assert r.json['data']['title'] == 'Hello'
 
@@ -196,7 +196,7 @@ def run_jslcrud_test(app):
     assert r.json['results'][0] == 'Hello'
 
     # lets create another with wrong invalid values
-    r = c.post_json('/pages/+create',
+    r = c.post_json('/pages/',
                     {'title': 'page2', 'body': 123, 'footer': 123},
                     expect_errors=True)
 
@@ -204,7 +204,7 @@ def run_jslcrud_test(app):
     assert len(r.json['field_errors']) == 2
     assert len(r.json['form_errors']) == 0
 
-    r = c.post_json('/pages/+create',
+    r = c.post_json('/pages/',
                     {'title': 'page2', 'body': 'invalid', 'footer': 123},
                     expect_errors=True)
 
@@ -213,7 +213,7 @@ def run_jslcrud_test(app):
     assert len(r.json['form_errors']) == 1
 
     # lets update the entry
-    r = c.post_json('/pages/%s' % uuid, {'body': 'newbody'})
+    r = c.patch_json('/pages/%s' % uuid, {'body': 'newbody'})
 
     assert r.json['status'] == 'success'
 
@@ -236,8 +236,8 @@ def run_jslcrud_test(app):
 
     assert r.status_code == 422
 
-    r = c.post_json('/pages/%s' %
-                    uuid, {'body': 'invalid'}, expect_errors=True)
+    r = c.patch_json('/pages/%s' %
+                     uuid, {'body': 'invalid'}, expect_errors=True)
 
     assert r.json['status'] == 'error'
 
@@ -253,7 +253,7 @@ def run_jslcrud_test(app):
 
     assert r.json
 
-    r = c.post_json('/objects/+create', {'body': 'hello'})
+    r = c.post_json('/objects/', {'body': 'hello'})
 
     assert r.json['data']['body'] == 'hello'
     assert r.json['data']['id'] == 1
@@ -269,7 +269,7 @@ def run_jslcrud_test(app):
     assert original_object == object_by_uuid
 
     # test creation of named object
-    r = c.post_json('/named_objects/+create',
+    r = c.post_json('/named_objects/',
                     {'name': 'obj1', 'body': 'hello'})
 
     r = c.get('/named_objects/obj1')
@@ -277,7 +277,7 @@ def run_jslcrud_test(app):
     assert r.json['data']['name'] == 'obj1'
 
     # duplicate should fail
-    r = c.post_json('/named_objects/+create',
+    r = c.post_json('/named_objects/',
                     {'name': 'obj1', 'body': 'hello'},
                     expect_errors=True)
 
@@ -285,7 +285,7 @@ def run_jslcrud_test(app):
 
     # catch issue with ':' in name
 
-    r = c.post_json('/named_objects/+create',
+    r = c.post_json('/named_objects/',
                     {'name': 'object:obj2', 'body': 'hello'})
 
     r = c.get('/named_objects/object:obj2')

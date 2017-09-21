@@ -47,7 +47,7 @@ def search(context, request):
             'q': query}
 
 
-@App.json(model=CRUDCollection, name='create', request_method='POST',
+@App.json(model=CRUDCollection, request_method='POST',
           load=validate_schema(), permission=permission.Create)
 def create(context, request, json):
     if not context.create_view_enabled:
@@ -68,7 +68,7 @@ def read(context, request):
     return context.json()
 
 
-@App.json(model=CRUDModel, request_method='POST', load=validate_schema(),
+@App.json(model=CRUDModel, request_method='PATCH', load=validate_schema(),
           permission=permission.Edit)
 def update(context, request, json):
     if not context.update_view_enabled:
