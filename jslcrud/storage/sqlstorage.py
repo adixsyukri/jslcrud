@@ -90,11 +90,6 @@ class SQLStorage(object):
             raise NotFoundError(self.model, uuid)
         return self.model(self.request, self, r)
 
-    def get_json(self, identifier):
-        obj = self.get(identifier)
-        data = self.app.get_jslcrud_jsonprovider(obj.data)
-        return data
-
     def update(self, identifier, data):
         qs = []
         for f, v in zip(

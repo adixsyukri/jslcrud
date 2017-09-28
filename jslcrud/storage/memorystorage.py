@@ -77,11 +77,6 @@ class MemoryStorage(object):
         res.request = self.request
         return res
 
-    def get_json(self, identifier):
-        obj = self.get(identifier)
-        data = self.app.get_jslcrud_jsonprovider(obj.data)
-        return data
-
     def update(self, identifier, data):
         obj = DATA[self.typekey][identifier]
         for k, v in data.items():
