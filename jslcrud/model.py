@@ -13,7 +13,9 @@ import jsl
 from uuid import uuid4
 from transitions import Machine
 import copy
-from .errors import StateUpdateProhibitedError, AlreadyExistsError, NotFoundError
+from .errors import StateUpdateProhibitedError, AlreadyExistsError
+from .errors import NotFoundError
+
 
 ALLOWED_SEARCH_OPERATORS = ['and', 'or', '==', 'in']
 
@@ -83,9 +85,11 @@ class CRUDCollection(object):
         obj.set_initial_state()
         self.request.app.jslcrud_publish(self.request,
                                          obj, signals.OBJECT_CREATED)
+        obj.save()
         return obj
 
     def _create(self, data):
+        data = self.storage.set_schema_defaults(data)
         return self.storage.create(data)
 
     def get(self, identifier):
@@ -179,6 +183,13 @@ class CRUDModel(object):
         self.request.app.jslcrud_publish(
             self.request, self, signals.OBJECT_TOBEDELETED)
         self.storage.delete(self.identifier)
+
+    def save(self):
+        if not self.storage.use_transactions:
+            data = self._raw_json()
+            schema = self.schema.get_schema(ordered=True)
+            validate(data, schema)
+            self.storage.update(self.identifier, data)
 
     def _raw_json(self):
         schema = self.schema.get_schema(ordered=True)
@@ -305,6 +316,7 @@ class CRUDStateMachine(object):
     @state.setter
     def state(self, val):
         self._context.data['state'] = val
+        self._context.save()
 
 
 @App.jslcrud_rulesadapter(model=CRUDModel)

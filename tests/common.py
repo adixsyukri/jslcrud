@@ -256,7 +256,7 @@ def run_jslcrud_test(app):
     r = c.post_json('/objects/', {'body': 'hello'})
 
     assert r.json['data']['body'] == 'hello'
-    assert r.json['data']['id'] == 1
+    assert r.json['data']['id']
     assert r.json['data']['created_flag'] is True
     assert r.json['data']['created']
     uuid = r.json['data']['uuid']

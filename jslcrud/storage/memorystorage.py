@@ -1,28 +1,18 @@
 from ..errors import NotFoundError
 from morepath.request import Request
 from rulez import compile_condition
+from .base import BaseStorage
 
 DATA = {}
 
 
-class MemoryStorage(object):
+class MemoryStorage(BaseStorage):
 
     incremental_id = False
-
-    def set_identifier(self, obj, identifier):
-        for f, v in zip(
-                self.app.get_jslcrud_identifierfields(self.model.schema),
-                identifier.split(
-                    self.app.get_jslcrud_compositekey_separator())):
-            obj[f] = v
 
     @property
     def datastore(self):
         return DATA[self.typekey]
-
-    @property
-    def model(self):
-        raise NotImplementedError
 
     @property
     def typekey(self):
@@ -30,8 +20,7 @@ class MemoryStorage(object):
 
     def __init__(self, request):
         DATA.setdefault(self.typekey, {})
-        self.request = request
-        self.app = request.app
+        super(MemoryStorage, self).__init__(request)
 
     def create(self, data):
         data = data.copy()

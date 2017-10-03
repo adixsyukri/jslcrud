@@ -5,44 +5,24 @@ from rulez import compile_condition
 from sqlalchemy.types import TypeDecorator, CHAR
 from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime
+from .base import BaseStorage
 import uuid
 
 
-class SQLStorage(object):
+class SQLStorage(BaseStorage):
 
     _temp = {}
 
     @property
-    def model(self):
-        raise NotImplementedError
-
-    @property
     def orm_model(self):
         raise NotImplementedError
-
-    def set_identifier(self, obj, identifier):
-        for f, v in zip(
-                self.app.get_jslcrud_identifierfields(self.model.schema),
-                identifier.split(
-                    self.app.get_jslcrud_compositekey_separator())):
-            obj[f] = v
-
-    def __init__(self, request):
-        self.request = request
-        self.app = request.app
 
     @property
     def session(self):
         return self.request.db_session
 
     def create(self, data):
-        values = data
         o = self.orm_model()
-        data = {}
-        for fieldname, field in self.model.schema._fields.items():
-            if field.required:
-                data[fieldname] = field.get_default()
-        data.update(values)
         dst = self.app.get_jslcrud_dataprovider(self.model.schema, o)
         src = self.app.get_jslcrud_dataprovider(self.model.schema, data)
         for k, v in src.items():
