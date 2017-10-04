@@ -6,6 +6,8 @@ from sqlalchemy.types import TypeDecorator, CHAR
 from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime
 from .base import BaseStorage
+from ..app import App
+import jsl
 import uuid
 
 
@@ -23,8 +25,8 @@ class SQLStorage(BaseStorage):
 
     def create(self, data):
         o = self.orm_model()
-        dst = self.app.get_jslcrud_dataprovider(self.model.schema, o)
-        src = self.app.get_jslcrud_dataprovider(self.model.schema, data)
+        dst = self.app.get_jslcrud_dataprovider(self.model.schema, o, self)
+        src = self.app.get_jslcrud_dataprovider(self.model.schema, data, self)
         for k, v in src.items():
             dst[k] = v
         m = self.model(self.request, self, o)
@@ -74,7 +76,8 @@ class SQLStorage(BaseStorage):
         qs = []
         for f, v in zip(
                 self.app.get_jslcrud_identifierfields(self.model.schema),
-                identifier.split(self.app.get_jslcrud_compositekey_separator())):
+                identifier.split(
+                    self.app.get_jslcrud_compositekey_separator())):
             qs.append(getattr(self.orm_model, f) == v)
         q = self.session.query(self.orm_model).filter(sa.and_(*qs))
 
@@ -82,7 +85,7 @@ class SQLStorage(BaseStorage):
         if not r:
             raise ValueError(identifier)
 
-        d = self.app.get_jslcrud_dataprovider(self.model.schema, r)
+        d = self.app.get_jslcrud_dataprovider(self.model.schema, r, self)
         for k, v in data.items():
             d[k] = v
 

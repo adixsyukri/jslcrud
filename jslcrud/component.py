@@ -7,17 +7,19 @@ class DataProviderAction(dectate.Action):
 
     app_class_arg = True
 
-    def __init__(self, schema, obj):
+    def __init__(self, schema, obj, storage):
         self.schema = schema
         self.obj = obj
+        self.storage = storage
 
     def identifier(self, app_class):
-        return str((app_class, self.schema, self.obj))
+        return str((app_class, self.schema, self.obj, self.storage))
 
     def perform(self, obj, app_class):
         app_class.get_jslcrud_dataprovider.register(reg.methodify(obj),
                                                     schema=self.schema,
-                                                    obj=self.obj)
+                                                    obj=self.obj,
+                                                    storage=self.storage)
 
 
 class JSONProviderAction(dectate.Action):

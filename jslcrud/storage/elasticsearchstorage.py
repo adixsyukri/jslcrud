@@ -2,6 +2,7 @@ from ..errors import NotFoundError
 from .base import BaseStorage
 from rulez import compile_condition
 import elasticsearch.exceptions as es_exc
+from ..app import App
 
 
 class ElasticSearchStorage(BaseStorage):

@@ -63,7 +63,8 @@ class CRUDCollection(object):
         self.storage = storage
         self.data = None
         if data:
-            self.data = request.app.get_jslcrud_dataprovider(self.schema, data)
+            self.data = request.app.get_jslcrud_dataprovider(self.schema, data,
+                                                             self.storage)
 
     def search(self, query=None, limit=20):
         if query:
@@ -165,7 +166,8 @@ class CRUDModel(object):
         self.request = request
         self.storage = storage
         self.app = request.app
-        self.data = request.app.get_jslcrud_dataprovider(self.schema, data)
+        self.data = request.app.get_jslcrud_dataprovider(self.schema, data,
+                                                         self.storage)
         self._cached_identifier = None
 
     def update(self, newdata):

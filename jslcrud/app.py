@@ -23,11 +23,14 @@ class App(JsonSchemaApp, signals.SignalApp):
     jslcrud_uuidfield = dectate.directive(actions.UUIDFieldAction)
     jslcrud_statemachine = dectate.directive(actions.StateMachineAction)
 
-    @reg.dispatch_method(reg.match_class('schema',
-                                         lambda self, schema, obj: schema),
-                         reg.match_instance('obj'))
-    def get_jslcrud_dataprovider(self, schema, obj):
-        raise NotImplementedError('Dataprovider for %s' % obj.__class__)
+    @reg.dispatch_method(
+        reg.match_class('schema',
+                        lambda self, schema, obj, storage: schema),
+        reg.match_instance('obj'),
+        reg.match_instance('storage'))
+    def get_jslcrud_dataprovider(self, schema, obj, storage):
+        raise NotImplementedError('Dataprovider for %s/%s' % (
+            storage.__class__, obj.__class__))
 
     @reg.dispatch_method(reg.match_instance('obj'))
     def get_jslcrud_jsonprovider(self, obj):

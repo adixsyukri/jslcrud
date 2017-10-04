@@ -1,16 +1,19 @@
 from ..app import App
 from .base import Provider
 from ..types import datestr
+from ..storage.memorystorage import MemoryStorage
 import jsl
+
 
 _MARKER = []
 
 
 class DictProvider(Provider):
 
-    def __init__(self, schema, data):
+    def __init__(self, schema, data, storage):
         self.schema = schema
         self.data = data
+        self.storage = storage
 
     def __getitem__(self, key):
         if isinstance(self.schema._fields[key], jsl.DateTimeField):
@@ -41,9 +44,9 @@ class DictProvider(Provider):
         return self.data.keys()
 
 
-@App.jslcrud_dataprovider(schema=jsl.Document, obj=dict)
-def get_dataprovider(schema, obj):
-    return DictProvider(schema, obj)
+@App.jslcrud_dataprovider(schema=jsl.Document, obj=dict, storage=MemoryStorage)
+def get_dataprovider(schema, obj, storage):
+    return DictProvider(schema, obj, storage)
 
 
 @App.jslcrud_jsonprovider(obj=DictProvider)

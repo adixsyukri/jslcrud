@@ -1,5 +1,6 @@
 import jsl
-from ..storage.sqlstorage import Base, GUID
+from ..storage.sqlstorage import Base, GUID, SQLStorage
+from .dictprovider import DictProvider
 from ..app import App
 from .base import Provider
 import sqlalchemy as sa
@@ -11,11 +12,12 @@ _MARKER = []
 
 class SQLAlchemyModelProvider(Provider):
 
-    def __init__(self, schema, data):
+    def __init__(self, schema, data, storage):
         self.schema = schema
         self.data = data
         self.orm_model = data.__class__
         self.columns = self.orm_model.__table__.c
+        self.storage = storage
 
     def __getitem__(self, key):
         if isinstance(self.columns[key].type, sa.DateTime):
@@ -88,9 +90,14 @@ class SQLAlchemyModelProvider(Provider):
         return self.schema._fields.keys()
 
 
-@App.jslcrud_dataprovider(schema=jsl.Document, obj=Base)
-def get_provider(schema, obj):
-    return SQLAlchemyModelProvider(schema, obj)
+@App.jslcrud_dataprovider(schema=jsl.Document, obj=Base, storage=SQLStorage)
+def get_provider(schema, obj, storage):
+    return SQLAlchemyModelProvider(schema, obj, storage)
+
+
+@App.jslcrud_dataprovider(schema=jsl.Document, obj=dict, storage=SQLStorage)
+def get_dict_provider(schema, obj, storage):
+    return DictProvider(schema, obj, storage)
 
 
 @App.jslcrud_jsonprovider(obj=SQLAlchemyModelProvider)
