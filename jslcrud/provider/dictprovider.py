@@ -14,6 +14,7 @@ class DictProvider(Provider):
         self.schema = schema
         self.data = data
         self.storage = storage
+        self.changed = False
 
     def __getitem__(self, key):
         if isinstance(self.schema._fields[key], jsl.DateTimeField):
@@ -22,12 +23,16 @@ class DictProvider(Provider):
 
     def __setitem__(self, key, value):
         self.data[key] = value
+        self.changed = True
 
     def __delitem__(self, key):
         del self.data[key]
+        self.changed = True
 
     def setdefault(self, key, value):
-        return self.data.setdefault(key, value)
+        r = self.data.setdefault(key, value)
+        self.changed = True
+        return r
 
     def get(self, key, default=_MARKER):
         if default is _MARKER:
@@ -36,6 +41,7 @@ class DictProvider(Provider):
 
     def set(self, key, value):
         self.data[key] = value
+        self.changed = True
 
     def items(self):
         return self.data.items()

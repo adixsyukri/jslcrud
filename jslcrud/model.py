@@ -86,7 +86,6 @@ class CRUDCollection(object):
         obj.set_initial_state()
         self.request.app.jslcrud_publish(self.request,
                                          obj, signals.OBJECT_CREATED)
-        obj.save()
         return obj
 
     def _create(self, data):
@@ -187,7 +186,7 @@ class CRUDModel(object):
         self.storage.delete(self.identifier)
 
     def save(self):
-        if not self.storage.use_transactions:
+        if self.data.changed:
             data = self._raw_json()
             schema = self.schema.get_schema(ordered=True)
             validate(data, schema)
@@ -318,7 +317,6 @@ class CRUDStateMachine(object):
     @state.setter
     def state(self, val):
         self._context.data['state'] = val
-        self._context.save()
 
 
 @App.jslcrud_rulesadapter(model=CRUDModel)

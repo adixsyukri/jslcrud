@@ -53,6 +53,7 @@ def create(context, request, json):
     if not context.create_view_enabled:
         raise HTTPForbidden()
     obj = context.create(request.json)
+    obj.save()
     return obj.json()
 
 
@@ -97,7 +98,7 @@ def statemachine(context, request):
             'status': 'error',
             'message': 'Unknown transition %s' % transition
         }
-
+    context.save()
     return context.json()
 
 

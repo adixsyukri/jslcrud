@@ -18,6 +18,7 @@ class SQLAlchemyModelProvider(Provider):
         self.orm_model = data.__class__
         self.columns = self.orm_model.__table__.c
         self.storage = storage
+        self.changed = False
 
     def __getitem__(self, key):
         if isinstance(self.columns[key].type, sa.DateTime):
