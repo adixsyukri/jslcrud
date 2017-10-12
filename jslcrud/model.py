@@ -66,13 +66,14 @@ class CRUDCollection(object):
             self.data = request.app.get_jslcrud_dataprovider(self.schema, data,
                                                              self.storage)
 
-    def search(self, query=None, limit=20):
+    def search(self, query=None, limit=20, secure=True):
         if query:
             validate_condition(query, ALLOWED_SEARCH_OPERATORS)
         objs = self.storage.search(query, limit)
-        objs = list([obj for obj in objs if permits(
-            self.request, obj, permission.View)])
-        return objs
+        if secure:
+            objs = list([obj for obj in objs if permits(
+                self.request, obj, permission.View)])
+        return list(objs)
 
     def create(self, data):
         identifier = self.app.get_jslcrud_default_identifier(
