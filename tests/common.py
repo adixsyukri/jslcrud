@@ -291,3 +291,16 @@ def run_jslcrud_test(app):
     r = c.get('/named_objects/object:obj2')
 
     assert r.json['data']['name'] == 'object:obj2'
+
+    # catch issue with ' ' in name
+
+    r = c.post_json('/named_objects/',
+                    {'name': 'object obj2', 'body': 'hello'})
+
+    r = c.get('/named_objects/object%20obj2')
+
+    assert r.json['data']['name'] == 'object obj2'
+
+    r = c.patch_json('/named_objects/object%20obj2', {'body': 'hello1'})
+
+    assert r.status_code == 200

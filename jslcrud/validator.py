@@ -3,6 +3,7 @@ from .errors import ValidationError, FormValidationError
 from jsonschema import Draft4Validator
 import reg
 from morepath.publish import resolve_model
+import urllib
 
 
 @reg.dispatch(reg.match_instance('model'), reg.match_instance('request'))
@@ -12,7 +13,8 @@ def get_data(model, request):
 
 def load(validator, request):
     newreq = request.app.request_class(
-        request.environ.copy(), request.app, path_info=request.path)
+        request.environ.copy(), request.app,
+        path_info=urllib.parse.unquote(request.path))
     context = resolve_model(newreq)
     context.request = request
     schema = context.schema.get_schema(ordered=True)
