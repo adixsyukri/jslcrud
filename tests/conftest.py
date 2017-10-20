@@ -6,7 +6,7 @@ from elasticsearch import Elasticsearch
 
 
 @pytest.fixture(scope='session')
-def elasticsearch_proc(request):
+def es_proc(request):
     port = 9085
     home_dir = '/tmp/elasticsearch_%s' % port
     os.environ['ES_HOME'] = home_dir
@@ -33,8 +33,8 @@ def elasticsearch_proc(request):
 
 
 @pytest.fixture(scope='session')
-def elasticsearch(request):
-    process = request.getfixturevalue('elasticsearch_proc')
+def es_client(request):
+    process = request.getfixturevalue('es_proc')
     if not process.running():
         process.start()
 

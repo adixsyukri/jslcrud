@@ -13,9 +13,6 @@ from sqlalchemy.orm import sessionmaker
 from zope.sqlalchemy import register as register_session
 import jslcrud.signals as signals
 from elasticsearch import Elasticsearch
-from es_pytest import elasticsearch_proc
-from es_pytest import elasticsearch as elasticsearch_client
-
 
 Session = sessionmaker()
 register_session(Session)
@@ -146,5 +143,5 @@ def namedobject_model_factory(request, identifier):
     return storage.get(identifier)
 
 
-def test_elasticsearchstorage(elasticsearch_proc, elasticsearch_client):
+def test_elasticsearchstorage(es_client):
     run_jslcrud_test(App)
