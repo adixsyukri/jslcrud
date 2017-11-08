@@ -25,12 +25,17 @@ class ElasticSearchStorage(BaseStorage):
 
     def create_index(self):
         if not self.client.indices.exists(self.index_name):
-            self.client.indices.create(index=self.index_name, body={
-                'settings': {
-                    'number_of_shards': 1,
-                    'number_of_replicas': 0
-                }
-            })
+            try:
+                self.client.indices.create(index=self.index_name, body={
+                    'settings': {
+                        'number_of_shards': 1,
+                        'number_of_replicas': 0
+                    }
+                })
+            except es_exc.TransportError as e:
+                if e.error == 'index_already_exists_exception':
+                    return
+                raise e
 
     def create(self, data):
         m = self.model(self.request, self, data)
