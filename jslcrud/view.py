@@ -39,7 +39,7 @@ def search(context, request):
         expr = jsonpath_parse(select)
         results = []
         for obj in objs:
-            results += [match.value for match in expr.find(obj['data'])]
+            results.append([match.value for match in expr.find(obj['data'])])
     else:
         results = objs
     return {'results': results,

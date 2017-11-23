@@ -193,7 +193,13 @@ def run_jslcrud_test(app):
         'select': '$.title'
     })
 
-    assert r.json['results'][0] == 'Hello'
+    assert r.json['results'] == [['Hello']]
+
+    r = c.get('/pages/+search', {
+        'select': '$.[title, body]'
+    })
+
+    assert r.json['results'] == [['Hello', 'World']]
 
     # lets create another with wrong invalid values
     r = c.post_json('/pages/',
