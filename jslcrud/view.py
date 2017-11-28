@@ -10,7 +10,8 @@ from morepath.request import Request
 from transitions import MachineError
 from jsonpath_ng import parse as jsonpath_parse
 import traceback
-
+import os
+import sys
 
 @get_data.register(model=CRUDCollection, request=Request)
 def get_collection_data(model, request):
