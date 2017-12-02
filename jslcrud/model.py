@@ -39,7 +39,8 @@ def default_identifierfields(schema):
 
 @App.jslcrud_default_identifier(schema=CRUDSchema)
 def default_identifier(schema, obj, request):
-    return uuid4().hex
+    if obj.get('uuid', None) is None:
+        return uuid4().hex
 
 
 def permits(request, obj, permission, app=None):
