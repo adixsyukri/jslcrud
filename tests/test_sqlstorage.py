@@ -130,8 +130,9 @@ def namedobject_model_factory(request, identifier):
     return storage.get(identifier)
 
 
-def test_sqlstorage():
-    engine = sa.create_engine('sqlite://')
+def test_sqlstorage(pgsql_db):
+    engine = sa.create_engine(
+        'postgresql://postgres@localhost:45678/jslcrud_tests')
     Session.configure(bind=engine)
     Base.metadata.create_all(engine)
     run_jslcrud_test(App)
