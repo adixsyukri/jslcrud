@@ -32,10 +32,16 @@ def search(context, request):
     if not query:
         query = None
     limit = int(request.GET.get('limit', 20))
+    offset = int(request.GET.get('offset', 0))
+    order_by = request.GET.get('order_by', None)
     select = request.GET.get('select', None)
+    if order_by:
+        order_by = order_by.split(':')
+        if len(order_by) == 1:
+            order_by = order_by + ['asc']
     if limit > 100:
         limit = 100
-    objs = context.search(query, limit=limit)
+    objs = context.search(query, offset=offset, limit=limit, order_by=order_by)
     objs = [obj.json() for obj in objs]
     if select:
         expr = jsonpath_parse(select)

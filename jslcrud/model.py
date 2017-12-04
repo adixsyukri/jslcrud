@@ -66,10 +66,12 @@ class CRUDCollection(object):
             self.data = request.app.get_jslcrud_dataprovider(self.schema, data,
                                                              self.storage)
 
-    def search(self, query=None, limit=20, secure=True):
+    def search(self, query=None, offset=0, limit=20, order_by=None,
+               secure=True):
         if query:
             validate_condition(query, ALLOWED_SEARCH_OPERATORS)
-        objs = self.storage.search(query, limit)
+        objs = self.storage.search(
+            query, offset=offset, limit=limit, order_by=order_by)
         if secure:
             objs = list([obj for obj in objs if permits(
                 self.request, obj, permission.View)])
@@ -226,7 +228,7 @@ class CRUDModel(object):
             links.append({
                 'rel': 'update',
                 'href': self.request.link(self),
-                'method': 'POST'
+                'method': 'PATCH'
             })
         if self.delete_view_enabled:
             links.append({

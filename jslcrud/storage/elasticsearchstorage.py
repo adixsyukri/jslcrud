@@ -40,16 +40,22 @@ class ElasticSearchStorage(BaseStorage):
     def create(self, data):
         m = self.model(self.request, self, data)
         self.create_index()
-        r = self.client.index(index=self.index_name, doc_type=self.doc_type,
-                              id=m.identifier,
-                              body=data, refresh=self.refresh)
+        try:
+            r = self.client.index(index=self.index_name,
+                                  doc_type=self.doc_type,
+                                  id=m.identifier,
+                                  body=data, refresh=self.refresh)
+        except es_exc.TransportError as e:
+            print(e.args, e.error, e.info)
+            print(data)
+            raise e
 
         if self.auto_id:
             self.set_identifier(m.data, r['_id'])
             m.save()
         return m
 
-    def search(self, query=None, limit=None):
+    def search(self, query=None, offset=None, limit=None, order_by=None):
         if query:
             q = {'query': compile_condition('elasticsearch', query)()}
         else:
@@ -59,8 +65,15 @@ class ElasticSearchStorage(BaseStorage):
             q['size'] = limit
 
         self.create_index()
+        params = {}
+        if offset is not None:
+            params['from_'] = offset
+        if limit:
+            params['size'] = limit
+        if order_by:
+            params['sort'] = [':'.join(order_by)]
         res = self.client.search(index=self.index_name, doc_type=self.doc_type,
-                                 body=q)
+                                 body=q, **params)
 
         data = [self.model(self.request, self, o['_source'])
                 for o in res['hits']['hits']]

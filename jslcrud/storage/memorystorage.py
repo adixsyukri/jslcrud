@@ -32,7 +32,7 @@ class MemoryStorage(BaseStorage):
         DATA[self.typekey][identifier] = obj
         return obj
 
-    def search(self, query=None, limit=None):
+    def search(self, query=None, offset=None, limit=None, order_by=None):
         res = []
         if query:
             f = compile_condition('native', query)
@@ -40,9 +40,18 @@ class MemoryStorage(BaseStorage):
                 if f(o.data):
                     res.append(o)
         else:
-            res = DATA[self.typekey].values()
+            res = list(DATA[self.typekey].values())
         for r in res:
             r.request = self.request
+        if offset is not None:
+            res = res[offset:]
+        if limit is not None:
+            res = res[:limit]
+        if order_by is not None:
+            col, d = order_by
+            res = list(sorted(res, key=lambda x: x.data[col]))
+            if d == 'desc':
+                res = list(reversed(res))
         return res
 
     def get(self, identifier):
