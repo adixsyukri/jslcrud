@@ -178,6 +178,10 @@ def run_jslcrud_test(app):
 
     # lets see if the entry appears in listing
 
+    for i in range(10):
+        r = c.post_json(
+            '/pages/', {'title': 'page%s' % i, 'body': 'page%sbody' % i})
+
     r = c.get('/pages/+search',
               {'q': json.dumps({'operator': 'in',
                                 'value': ['Hello', 'something'],
@@ -187,19 +191,64 @@ def run_jslcrud_test(app):
 
     r = c.get('/pages/+search')
 
-    assert r.json['results'][0]['data']['title'] == 'Hello'
+    assert 'Hello' in [i['data']['title'] for i in r.json['results']]
 
     r = c.get('/pages/+search', {
-        'select': '$.title'
+        'select': '$.title',
+        'q': json.dumps({'operator': 'in',
+                         'value': ['Hello'],
+                         'field': 'title'})
     })
 
     assert r.json['results'] == [['Hello']]
 
     r = c.get('/pages/+search', {
-        'select': '$.[title, body]'
+        'select': '$.[title, body]',
+        'q': json.dumps({'operator': 'in',
+                         'value': ['Hello'],
+                         'field': 'title'})
     })
 
     assert r.json['results'] == [['Hello', 'World']]
+
+    r = c.get('/pages/+search', {
+        'order_by': 'title'
+    })
+
+    assert list([i['data']['title'] for i in r.json['results']]) == (
+        ['Hello'] + ['page%s' % i for i in range(10)])
+
+    r = c.get('/pages/+search', {
+        'order_by': 'title:desc'
+    })
+
+    assert list([i['data']['title'] for i in r.json['results']]) == (
+        ['page%s' % i for i in range(9, -1, -1)] + ['Hello'])
+
+    r = c.get('/pages/+search', {
+        'order_by': 'title',
+        'limit': 5
+    })
+
+    assert list([i['data']['title'] for i in r.json['results']]) == (
+        ['Hello'] + ['page%s' % i for i in range(4)])
+
+    r = c.get('/pages/+search', {
+        'order_by': 'title',
+        'offset': 1
+    })
+
+    assert list([i['data']['title'] for i in r.json['results']]) == (
+        ['page%s' % i for i in range(10)])
+
+    r = c.get('/pages/+search', {
+        'order_by': 'title',
+        'offset': 1,
+        'limit': 5
+    })
+
+    assert list([i['data']['title'] for i in r.json['results']]) == (
+        ['page%s' % i for i in range(5)])
 
     # lets create another with wrong invalid values
     r = c.post_json('/pages/',
@@ -297,6 +346,10 @@ def run_jslcrud_test(app):
     r = c.get('/named_objects/object:obj2')
 
     assert r.json['data']['name'] == 'object:obj2'
+
+    r = c.get('/named_objects/object:obj2?select=$.[body]')
+
+    assert r.json == ['hello']
 
     # catch issue with ' ' in name
 

@@ -3,6 +3,12 @@ import pytest
 import shutil
 import mirakuru
 from elasticsearch import Elasticsearch
+from pytest_postgresql import factories
+
+pgsql_proc = factories.postgresql_proc(
+    executable='/usr/bin/pg_ctl', host='localhost', port=45678,
+    user='postgres')
+pgsql_db = factories.postgresql('pgsql_proc', db='jslcrud_tests')
 
 
 @pytest.fixture(scope='session')

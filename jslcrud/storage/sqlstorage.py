@@ -36,13 +36,26 @@ class SQLStorage(BaseStorage):
         self.session.refresh(o)
         return m
 
-    def search(self, query=None, limit=None):
+    def search(self, query=None, offset=None, limit=None, order_by=None):
         if query:
             f = compile_condition('sqlalchemy', query)
             filterquery = f(self.orm_model)
             q = self.session.query(self.orm_model).filter(filterquery)
         else:
             q = self.session.query(self.orm_model)
+
+        if order_by is not None:
+            col = order_by[0]
+            d = order_by[1]
+            if d not in ['asc', 'desc']:
+                raise KeyError(d)
+            colattr = getattr(self.orm_model, col)
+            if d == 'desc':
+                q = q.order_by(colattr.desc())
+            else:
+                q = q.order_by(colattr)
+        if offset is not None:
+            q = q.offset(offset)
         if limit is not None:
             q = q.limit(limit)
 

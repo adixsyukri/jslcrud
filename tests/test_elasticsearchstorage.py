@@ -144,4 +144,19 @@ def namedobject_model_factory(request, identifier):
 
 
 def test_elasticsearchstorage(es_client):
+    es_client.indices.create('test-index', body={
+        'settings': {
+            'number_of_shards': 1,
+            'number_of_replicas': 0
+        }
+    })
+    es_client.transport.perform_request('PUT', '/test-index/_mapping/page',
+                                        body={
+                                            'properties': {
+                                                'title': {
+                                                    'type': 'text',
+                                                    'fielddata': True
+                                                }
+                                            }
+                                        })
     run_jslcrud_test(App)

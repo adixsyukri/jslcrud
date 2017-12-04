@@ -13,6 +13,7 @@ import traceback
 import os
 import sys
 
+
 @get_data.register(model=CRUDCollection, request=Request)
 def get_collection_data(model, request):
     return request.json
@@ -31,10 +32,16 @@ def search(context, request):
     if not query:
         query = None
     limit = int(request.GET.get('limit', 20))
+    offset = int(request.GET.get('offset', 0))
+    order_by = request.GET.get('order_by', None)
     select = request.GET.get('select', None)
+    if order_by:
+        order_by = order_by.split(':')
+        if len(order_by) == 1:
+            order_by = order_by + ['asc']
     if limit > 100:
         limit = 100
-    objs = context.search(query, limit=limit)
+    objs = context.search(query, offset=offset, limit=limit, order_by=order_by)
     objs = [obj.json() for obj in objs]
     if select:
         expr = jsonpath_parse(select)
@@ -67,7 +74,13 @@ def get_obj_data(model, request):
 
 @App.json(model=CRUDModel, permission=permission.View)
 def read(context, request):
-    return context.json()
+    select = request.GET.get('select', None)
+    obj = context.json()
+    if select:
+        expr = jsonpath_parse(select)
+        results = []
+        obj = [match.value for match in expr.find(obj['data'])]
+    return obj
 
 
 @App.json(model=CRUDModel, request_method='PATCH', load=validate_schema(),
