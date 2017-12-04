@@ -13,6 +13,7 @@ import traceback
 import os
 import sys
 
+
 @get_data.register(model=CRUDCollection, request=Request)
 def get_collection_data(model, request):
     return request.json
@@ -67,7 +68,13 @@ def get_obj_data(model, request):
 
 @App.json(model=CRUDModel, permission=permission.View)
 def read(context, request):
-    return context.json()
+    select = request.GET.get('select', None)
+    obj = context.json()
+    if select:
+        expr = jsonpath_parse(select)
+        results = []
+        obj = [match.value for match in expr.find(obj['data'])]
+    return obj
 
 
 @App.json(model=CRUDModel, request_method='PATCH', load=validate_schema(),

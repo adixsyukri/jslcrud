@@ -298,6 +298,10 @@ def run_jslcrud_test(app):
 
     assert r.json['data']['name'] == 'object:obj2'
 
+    r = c.get('/named_objects/object:obj2?select=$.[body]')
+
+    assert r.json == ['hello']
+
     # catch issue with ' ' in name
 
     r = c.post_json('/named_objects/',
