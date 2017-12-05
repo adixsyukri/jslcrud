@@ -101,9 +101,8 @@ def statemachine(context, request):
 
     sm = context.state_machine()
     transition = request.json['transition']
-    try:
-        getattr(sm, transition)()
-    except AttributeError:
+    attr = getattr(sm, transition, None)
+    if attr is None:
         @request.after
         def adjust_status(response):
             response.status = 422
@@ -112,6 +111,7 @@ def statemachine(context, request):
             'status': 'error',
             'message': 'Unknown transition %s' % transition
         }
+    attr()
     context.save()
     return context.json()
 
