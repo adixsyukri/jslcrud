@@ -9,6 +9,7 @@ from webob.exc import HTTPNotFound, HTTPForbidden, HTTPInternalServerError
 from morepath.request import Request
 from transitions import MachineError
 from jsonpath_ng import parse as jsonpath_parse
+from urllib.parse import urlencode
 import traceback
 import os
 import sys
@@ -50,9 +51,24 @@ def search(context, request):
             results.append([match.value for match in expr.find(obj['data'])])
     else:
         results = objs
-    return {'results': results,
-            'total': len(objs),
-            'q': query}
+    params = {}
+    if select:
+        params['select'] = select
+    if limit:
+        params['limit'] = limit
+    params['offset'] = offset + limit
+    qs = urlencode(params)
+    res = {'results': results, 'q': query}
+    if len(results):
+        res['next'] = request.link(context, '+search?%s' % qs)
+    if offset > 0:
+        prev_offset = offset - limit
+        if prev_offset < 0:
+            prev_offset = 0
+        params['offset'] = prev_offset
+        qs = urlencode(params)
+        res['previous'] = request.link(context, '+search?%s' % qs)
+    return res
 
 
 @App.json(model=CRUDCollection, request_method='POST',
