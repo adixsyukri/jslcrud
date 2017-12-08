@@ -248,7 +248,13 @@ class CRUDModel(object):
                 'href': self.request.link(self, '+statemachine'),
                 'method': 'POST'
             })
+        links += self._links()
         return links
+
+    def _links(self):
+        return []
+
+
 
     def rules_adapter(self):
         return self.app._jslcrud_rulesadapter(self)
