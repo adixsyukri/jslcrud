@@ -112,11 +112,16 @@ class CRUDCollection(object):
 
     def links(self):
         request = self.request
-        return [{'rel': 'create',
+        links = [{'rel': 'create',
                  'href': request.link(self, '+create'),
                  'method': 'POST'},
                 {'rel': 'search',
                  'href': request.link(self, '+search')}]
+        links += self._links()
+        return links
+
+    def _links(self):
+        return []
 
 
 class CRUDModel(object):
