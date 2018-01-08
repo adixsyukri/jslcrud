@@ -17,7 +17,7 @@ from .errors import StateUpdateProhibitedError, AlreadyExistsError
 from .errors import NotFoundError
 
 
-ALLOWED_SEARCH_OPERATORS = ['and', 'or', '==', 'in', '~']
+ALLOWED_SEARCH_OPERATORS = ['and', 'or', '==', 'in', '~', '!=']
 
 
 @App.jslcrud_jsontransfrom(schema=jsl.Document)
