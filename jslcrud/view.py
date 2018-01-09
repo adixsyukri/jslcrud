@@ -14,7 +14,7 @@ import traceback
 import os
 import sys
 import logging
-logger = logging.getLogger('ccis')
+logger = logging.getLogger('jslcrud')
 
 
 @get_data.register(model=CRUDCollection, request=Request)
