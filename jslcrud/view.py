@@ -13,6 +13,8 @@ from urllib.parse import urlencode
 import traceback
 import os
 import sys
+import logging
+logger = logging.getLogger('ccis')
 
 
 @get_data.register(model=CRUDCollection, request=Request)
@@ -243,7 +245,7 @@ def internalserver_error(context, request):
     def adjust_status(response):
         response.status = 500
 
-    traceback.print_exc()
+    logger.error(traceback.format_exc())
 
     return {
         'status': 'error',
