@@ -67,7 +67,7 @@ class CRUDCollection(object):
             self.data = request.app.get_jslcrud_dataprovider(self.schema, data,
                                                              self.storage)
 
-    def search(self, query=None, offset=0, limit=20, order_by=None,
+    def search(self, query=None, offset=0, limit=None, order_by=None,
                secure=True):
         if query:
             validate_condition(query, ALLOWED_SEARCH_OPERATORS)
